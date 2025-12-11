@@ -1,0 +1,73 @@
+
+services:
+  mail:
+    image: ghcr.io/docker-mailserver/docker-mailserver:15.1.0
+    container_name: mail
+    hostname: mail
+    domainname: qumail.local
+    env_file: ./mail.env
+    ports:
+      - "25:25"     # SMTP
+      - "587:587"   # Submission (SMTP auth)
+      - "143:143"   # IMAP
+      - "993:993"   # IMAPS
+    volumes:
+      - ./data/maildata:/var/mail
+      - mailstate:/var/mail-state
+      - maillogs:/var/log/mail
+      - ./data/dkim:/tmp/docker-mailserver/opendkim/keys
+      - ./config/:/tmp/docker-mailserver/
+      - ./data/ssl:/etc/letsencrypt
+    restart: always
+    cap_add:
+      - NET_ADMIN
+    healthcheck:
+      test: ["CMD-SHELL", "ss -ltn | grep -q ':25' || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  db:
+    image: postgres:15-alpine
+    container_name: roundcube_db
+    environment:
+      POSTGRES_DB: roundcube
+      POSTGRES_USER: roundcube
+      POSTGRES_PASSWORD: roundcube_pass
+    volumes:
+      - db:/var/lib/postgresql/data
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U roundcube -d roundcube || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  roundcube:
+    image: roundcube/roundcubemail
+    container_name: roundcube
+    environment:
+      ROUNDCUBEMAIL_DB_TYPE: pgsql
+      ROUNDCUBEMAIL_DB_HOST: db
+      ROUNDCUBEMAIL_DB_NAME: roundcube
+      ROUNDCUBEMAIL_DB_USER: roundcube
+      ROUNDCUBEMAIL_DB_PASSWORD: roundcube_pass
+      ROUNDCUBEMAIL_DEFAULT_HOST: mail
+      ROUNDCUBEMAIL_SMTP_SERVER: mail
+      ROUNDCUBEMAIL_SMTP_PORT: 587
+    ports:
+      - "8080:80"
+    restart: always
+    depends_on:
+      - mail
+      - db
+    healthcheck:
+      test: ["CMD-SHELL", "wget --spider -q http://localhost || exit 1"]
+      interval: 20s
+      timeout: 10s
+      retries: 5
+
+volumes:
+  mailstate:
+  maillogs:
+  db:
