@@ -52,12 +52,17 @@ services:
       ROUNDCUBEMAIL_DB_NAME: roundcube
       ROUNDCUBEMAIL_DB_USER: roundcube
       ROUNDCUBEMAIL_DB_PASSWORD: roundcube_pass
-      ROUNDCUBEMAIL_DEFAULT_HOST: mail
-      ROUNDCUBEMAIL_SMTP_SERVER: mail
+      ROUNDCUBEMAIL_DEFAULT_HOST: tls://mail
+      ROUNDCUBEMAIL_SMTP_SERVER: tls://mail
       ROUNDCUBEMAIL_SMTP_PORT: 587
+      # Internal self-signed certs require disabling verification via JSON options
+      ROUNDCUBEMAIL_IMAP_CONN_OPTIONS: '{"ssl":{"verify_peer":false,"verify_peer_name":false,"allow_self_signed":true}}'
+      ROUNDCUBEMAIL_SMTP_CONN_OPTIONS: '{"ssl":{"verify_peer":false,"verify_peer_name":false,"allow_self_signed":true}}'
     ports:
       - "8080:80"
     restart: always
+    volumes:
+      - ./config/roundcube/config.inc.php:/var/www/html/config/config.inc.php
     depends_on:
       - mail
       - db
