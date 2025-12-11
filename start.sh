@@ -16,24 +16,25 @@ fi
 echo "[2/4] Starting Docker containers..."
 docker compose up -d
 
-# 3. Wait for Mail Server
-echo "[3/4] Waiting for mail server to be ready (this may take a moment)..."
-# Loop until the container is healthy
-until [ "`docker inspect -f {{.State.Health.Status}} mail`" == "healthy" ]; do
-    sleep 2
-    echo -n "."
-done
-echo " Ready!"
-
-# 4. Create Default User (if not exists)
-echo "[4/4] Checking default user..."
-# Check if user exists by listing and grepping. If grep fails, user doesn't exist.
+# 3. Create Default User (Crucial to unblock startup)
+echo "[3/4] Creating default user to unblock startup..."
+# We wait a few seconds for the container to actually be "running" enough to accept exec
+sleep 10
 if ! docker exec mail setup email list | grep -q "user@qumail.local"; then
     echo "Creating default user: user@qumail.local / password123"
     docker exec mail setup email add user@qumail.local password123
 else
     echo "Default user already exists."
 fi
+
+# 4. Wait for Mail Server
+echo "[4/4] Waiting for mail server to be ready..."
+# Loop until the container is healthy
+until [ "`docker inspect -f {{.State.Health.Status}} mail`" == "healthy" ]; do
+    sleep 2
+    echo -n "."
+done
+echo " Ready!"
 
 # 5. DKIM Setup (Optional but good)
 if [ ! -f "data/dkim/qumail.local_mail/mail.private" ]; then
