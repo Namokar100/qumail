@@ -11,11 +11,42 @@ chmod -R 700 data/dkim || true
 
 if [ ! -f data/ssl/fullchain.pem ]; then
   echo "Generating self-signed certificate for mail.qumail.local..."
-  openssl req -x509 -nodes -days 365 \
+  
+  # Create a temporary config file to avoid "missing openssl.cfg" errors on Windows
+  # and to provide a robust configuration source.
+  cat > openssl_temp.cnf <<EOF
+[req]
+distinguished_name = req_distinguished_name
+x509_extensions = v3_req
+prompt = no
+
+[req_distinguished_name]
+C = IN
+ST = KA
+L = Bangalore
+O = QuMail
+CN = mail.qumail.local
+
+[v3_req]
+subjectAltName = @alt_names
+
+[alt_names]
+DNS.1 = mail.qumail.local
+DNS.2 = localhost
+EOF
+
+  # Generate the certificate using the temporary config file
+  # We export OPENSSL_CONF to /dev/null to prevent interference from system env vars,
+  # but rely on -config explicitly pointing to our file.
+  OPENSSL_CONF="/dev/null" openssl req -x509 -nodes -days 365 \
     -newkey rsa:2048 \
     -keyout data/ssl/privkey.pem \
     -out data/ssl/fullchain.pem \
-    -subj "/C=IN/ST=KA/L=Bangalore/O=QuMail/CN=mail.qumail.local"
+    -config openssl_temp.cnf || \
+    (echo "OpenSSL generation failed!" && rm -f openssl_temp.cnf && exit 1)
+
+  # Cleanup
+  rm -f openssl_temp.cnf
 fi
 
 echo "Folders & certificates ready."
