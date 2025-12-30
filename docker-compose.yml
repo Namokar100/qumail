@@ -72,6 +72,21 @@ services:
       timeout: 10s
       retries: 5
 
+  pqc-proxy:
+    image: openquantumsafe/nginx:latest
+    container_name: pqc_proxy
+    ports:
+      - "1443:443"   # PQC HTTPS
+      - "1025:1025"  # PQC SMTP Proxy
+      - "1143:1143"  # PQC IMAP Proxy
+    volumes:
+      - ./config/nginx/nginx.conf:/opt/nginx/conf/nginx.conf
+      - ./config/nginx/ssl:/etc/nginx/ssl
+    command: ["nginx", "-g", "daemon off;"]
+    depends_on:
+      - mail
+      - roundcube
+
 volumes:
   mailstate:
   maillogs:
