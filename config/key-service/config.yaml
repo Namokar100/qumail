@@ -1,0 +1,24 @@
+# QuMail Key Service Configuration
+# Environment variables for the Key Management Service
+
+# Database connection
+database:
+  url: "postgresql+asyncpg://roundcube:roundcube_pass@db:5432/roundcube"
+
+# CORS origins (Roundcube instances that can call this API)
+cors:
+  origins:
+    - "http://localhost:8080"
+    - "http://127.0.0.1:8080"
+    - "https://localhost:1443"
+    - "https://127.0.0.1:1443"
+
+# Server settings
+server:
+  host: "0.0.0.0"
+  port: 8081
+
+# Crypto settings
+crypto:
+  algorithm: "Kyber768"
+  pbkdf2_iterations: 100000
