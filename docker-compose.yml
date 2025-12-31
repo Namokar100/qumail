@@ -87,6 +87,26 @@ services:
       - mail
       - roundcube
 
+  # Key Management Service for PQC E2E Encryption
+  key-service:
+    build: ./services/key-service
+    container_name: key_service
+    environment:
+      DATABASE_URL: postgresql+asyncpg://roundcube:roundcube_pass@db:5432/roundcube
+    ports:
+      - "8081:8081"
+    volumes:
+      - ./config/key-service:/app/config
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8081/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
 volumes:
   mailstate:
   maillogs:
