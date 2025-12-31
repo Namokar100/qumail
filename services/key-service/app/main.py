@@ -7,6 +7,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.config import settings
 from app.database import init_db
 from app.routes.keys import router as keys_router
 
@@ -27,15 +28,10 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# CORS middleware - allow Roundcube to call this API
+# CORS middleware - origins loaded from config.yaml
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:8080",      # Roundcube local
-        "http://127.0.0.1:8080",
-        "https://localhost:1443",     # PQC proxy
-        "https://127.0.0.1:1443",
-    ],
+    allow_origins=settings.cors.origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

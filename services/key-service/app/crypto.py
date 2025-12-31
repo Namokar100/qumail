@@ -10,10 +10,11 @@ from dataclasses import dataclass
 from typing import Tuple
 import base64
 
+from app.config import settings
 
-# Constants
-KYBER_ALGORITHM = "Kyber768"
-PBKDF2_ITERATIONS = 100_000
+# Constants - loaded from config.yaml
+KYBER_ALGORITHM = settings.crypto.algorithm
+PBKDF2_ITERATIONS = settings.crypto.pbkdf2_iterations
 SALT_LENGTH = 16
 NONCE_LENGTH = 12
 

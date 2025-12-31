@@ -3,17 +3,12 @@ Database configuration and session management for the Key Service.
 """
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 from sqlalchemy.orm import DeclarativeBase
-import os
 
-# Database URL from environment or default
-DATABASE_URL = os.getenv(
-    "DATABASE_URL",
-    "postgresql+asyncpg://roundcube:roundcube_pass@db:5432/roundcube"
-)
+from app.config import settings
 
-# Create async engine
+# Create async engine using settings from config.yaml
 engine = create_async_engine(
-    DATABASE_URL,
+    settings.database.url,
     echo=True,
     pool_pre_ping=True
 )
