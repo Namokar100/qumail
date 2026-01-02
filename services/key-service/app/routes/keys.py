@@ -4,15 +4,23 @@ API routes for key management.
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel
 from datetime import datetime
 from typing import Optional
+import re
 
 from app.database import get_db
 from app.models import UserKey
 from app.crypto import bytes_to_base64, base64_to_bytes
 
 router = APIRouter(prefix="/keys", tags=["keys"])
+
+
+def validate_email_flexible(email: str) -> bool:
+    """Validate email with support for .local domains (for testing)."""
+    # Basic email pattern that allows .local and other non-standard TLDs
+    pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    return bool(re.match(pattern, email))
 
 
 # Request/Response schemas
@@ -28,10 +36,11 @@ class PublicKeyResponse(BaseModel):
 
 class GenerateKeyRequest(BaseModel):
     """Request to store a new keypair."""
-    user_email: EmailStr
+    user_email: str  # Using str instead of EmailStr to allow .local domains
     public_key: str  # Base64-encoded Kyber public key
     encrypted_private_key: str  # Base64-encoded encrypted private key
     salt: str  # Base64-encoded salt
+    nonce: Optional[str] = None  # Base64-encoded nonce (optional for backwards compatibility)
 
 
 class GenerateKeyResponse(BaseModel):
@@ -44,14 +53,16 @@ class PrivateKeyResponse(BaseModel):
     """Response for private key retrieval."""
     encrypted_private_key: str  # Base64-encoded
     salt: str  # Base64-encoded
+    nonce: Optional[str] = None  # Base64-encoded nonce
 
 
 class KeyRotateRequest(BaseModel):
     """Request to rotate keys."""
-    user_email: EmailStr
+    user_email: str  # Using str instead of EmailStr to allow .local domains
     new_public_key: str
     new_encrypted_private_key: str
     new_salt: str
+    new_nonce: Optional[str] = None
 
 
 @router.get("/{email}/public", response_model=PublicKeyResponse)
@@ -112,6 +123,7 @@ async def store_keypair(
         public_key_bytes = base64_to_bytes(request.public_key)
         encrypted_private_key_bytes = base64_to_bytes(request.encrypted_private_key)
         salt_bytes = base64_to_bytes(request.salt)
+        nonce_bytes = base64_to_bytes(request.nonce) if request.nonce else None
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -131,6 +143,7 @@ async def store_keypair(
         kyber_public_key=public_key_bytes,
         kyber_private_key_encrypted=encrypted_private_key_bytes,
         key_encryption_salt=salt_bytes,
+        key_encryption_nonce=nonce_bytes,
         created_at=datetime.utcnow()
     )
     
@@ -167,7 +180,8 @@ async def get_private_key(
     
     return PrivateKeyResponse(
         encrypted_private_key=bytes_to_base64(user_key.kyber_private_key_encrypted),
-        salt=bytes_to_base64(user_key.key_encryption_salt)
+        salt=bytes_to_base64(user_key.key_encryption_salt),
+        nonce=bytes_to_base64(user_key.key_encryption_nonce) if user_key.key_encryption_nonce else None
     )
 
 
@@ -198,6 +212,7 @@ async def rotate_keys(
         new_public_key_bytes = base64_to_bytes(request.new_public_key)
         new_encrypted_private_key_bytes = base64_to_bytes(request.new_encrypted_private_key)
         new_salt_bytes = base64_to_bytes(request.new_salt)
+        new_nonce_bytes = base64_to_bytes(request.new_nonce) if request.new_nonce else None
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -215,6 +230,7 @@ async def rotate_keys(
     user_key.kyber_public_key = new_public_key_bytes
     user_key.kyber_private_key_encrypted = new_encrypted_private_key_bytes
     user_key.key_encryption_salt = new_salt_bytes
+    user_key.key_encryption_nonce = new_nonce_bytes
     user_key.rotated_at = datetime.utcnow()
     
     await db.commit()
