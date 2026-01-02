@@ -23,6 +23,9 @@ class UserKey(Base):
     # Salt used for key derivation (16 bytes)
     key_encryption_salt = Column(LargeBinary, nullable=False)
     
+    # Nonce used for AES-GCM encryption (12 bytes)
+    key_encryption_nonce = Column(LargeBinary, nullable=True)  # nullable for backwards compatibility
+    
     # Timestamps
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     rotated_at = Column(DateTime, nullable=True)
