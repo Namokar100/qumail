@@ -4,4 +4,7 @@
 - Phase 2: PQC proxy setup with nginx
 - Phase 2.1: Enable SMTP/IMAP PQC Proxying
 - Phase 3: E2E implementation
-- Phase 4: OpenPGP/S/MIME with PQC
+- Phase 3.1: Build key services fast api backend
+- Phase 3.2: Build frontend roundcube plugin
+- Phase 3.3: Use real Kyber768 when WASM available or pqcrypto.js
+- Phase 4: Support multi recipient encryption
