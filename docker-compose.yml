@@ -63,6 +63,7 @@ services:
     restart: always
     volumes:
       - ./config/roundcube/config.inc.php:/var/www/html/config/config.inc.php
+      - ./config/roundcube/plugins/pqc_encryption:/var/www/html/plugins/pqc_encryption
     depends_on:
       - mail
       - db
