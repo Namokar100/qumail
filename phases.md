@@ -8,3 +8,4 @@
 - Phase 3.2: Build frontend roundcube plugin
 - Phase 3.3: Use real Kyber768 when WASM available or pqcrypto.js
 - Phase 4: Support multi recipient encryption
+- Phase 5: Support 2e2 encryption for multiple recipients
