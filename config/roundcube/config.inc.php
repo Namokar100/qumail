@@ -1,7 +1,7 @@
 <?php
 // Initialize config array as per default Roundcube behavior
 $config = [];
-$config['plugins'] = [];
+$config['plugins'] = ['pqc_encryption'];
 $config['log_driver'] = 'stdout';
 $config['zipdownload_selection'] = true;
 // Random key for security (normally generated, but static here is fine for dev)
