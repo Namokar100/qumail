@@ -38,6 +38,9 @@ class pqc_encryption extends rcube_plugin
         
         // Include JavaScript and CSS
         if ($this->rc->task == 'mail' || $this->rc->task == 'settings') {
+            // Load @noble/post-quantum ML-KEM-768 (REAL Kyber768)
+            $this->include_script('js/lib/noble-pqc.bundle.js');
+            // Load PQC crypto module that uses ML-KEM
             $this->include_script('js/pqc_crypto.js');
             $this->include_script('js/pqc_ui.js');
             $this->include_script('js/pqc_compose.js');

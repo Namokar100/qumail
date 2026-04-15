@@ -364,26 +364,13 @@ window.PQCRead = (function() {
     }
 
     /**
-     * Show decrypted message with E2E badge
+     * Show decrypted message as normal email body content
+     * Renders plaintext naturally, matching Roundcube's default message display
      */
     function showDecryptedMessage(container, plaintext, payload, isSentFolder = false) {
-        const badgeText = isSentFolder ? 'PQC E2E Encrypted (Your Sent Message)' : 'PQC E2E Encrypted';
-        const badgeSubtext = isSentFolder ? 
-            `${payload.algorithm || 'Kyber768+AES256GCM'} • You sent this encrypted message` :
-            `${payload.algorithm || 'Kyber768+AES256GCM'} • Decrypted successfully`;
-        
-        container.innerHTML = `
-            <div class="pqc-e2e-badge" style="display:flex; align-items:center; gap:10px; padding:12px 16px; background:linear-gradient(135deg, #4CAF50 0%, #45B649 100%); border-radius:8px; margin-bottom:15px; color:white;">
-                <span style="font-size:24px;">🔐</span>
-                <div>
-                    <strong style="font-size:14px;">${badgeText}</strong>
-                    <div style="font-size:11px; opacity:0.9;">${badgeSubtext}</div>
-                </div>
-            </div>
-            <div class="pqc-decrypted-content" style="padding:15px; background:#fafafa; border-radius:8px; border:1px solid #e0e0e0;">
-                ${escapeHtml(plaintext).replace(/\n/g, '<br>')}
-            </div>
-        `;
+        // Simply replace the container content with the decrypted plaintext,
+        // rendered the same way Roundcube shows normal unencrypted emails.
+        container.innerHTML = `<div class="message-part"><div class="rcmBody" style="white-space: pre-wrap;">${escapeHtml(plaintext)}</div></div>`;
     }
 
     /**

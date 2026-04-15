@@ -1,28 +1,39 @@
 /**
- * QuMail PQC Crypto Module
+ * QuMail PQC Crypto Module - Phase 3.3
  * 
- * Browser-based Kyber768 cryptographic operations for E2E encryption.
- * Uses a simplified JavaScript implementation for demonstration purposes.
+ * REAL ML-KEM-768 (Kyber768) cryptographic operations for E2E encryption.
+ * Uses @noble/post-quantum library - NIST FIPS 203 compliant.
  * 
- * Note: In production, you would use liboqs-JS (WASM) for actual Kyber768.
- * This implementation provides the same API interface but uses a simplified
- * hybrid encryption scheme for demonstration.
+ * This is REAL post-quantum cryptography - NOT a simulation!
+ * 
+ * ML-KEM-768 parameters:
+ * - Public key: 1184 bytes
+ * - Private key: 2400 bytes
+ * - Ciphertext: 1088 bytes
+ * - Shared secret: 32 bytes
  */
 
 window.PQCCrypto = (function() {
     'use strict';
 
-    // Constants
+    // Constants for AES-GCM encryption
     const PBKDF2_ITERATIONS = 100000;
     const SALT_LENGTH = 16;
     const NONCE_LENGTH = 12;
-    const KEY_LENGTH = 32;
     
-    // Simulated Kyber key sizes (for API compatibility)
-    const KYBER_PUBLIC_KEY_SIZE = 1184;
-    const KYBER_PRIVATE_KEY_SIZE = 2400;
-    const KYBER_CIPHERTEXT_SIZE = 1088;
-    const KYBER_SHARED_SECRET_SIZE = 32;
+    // ML-KEM-768 key sizes (from @noble/post-quantum)
+    let KYBER_PUBLIC_KEY_SIZE = 1184;
+    let KYBER_PRIVATE_KEY_SIZE = 2400;
+    let KYBER_CIPHERTEXT_SIZE = 1088;
+    let KYBER_SHARED_SECRET_SIZE = 32;
+
+    // Check if ML-KEM library is loaded
+    function getMlKem() {
+        if (typeof window.ml_kem768 === 'undefined') {
+            throw new Error('ML-KEM-768 library not loaded. Ensure noble-pqc.bundle.js is included.');
+        }
+        return window.ml_kem768;
+    }
 
     /**
      * Generate random bytes
@@ -56,147 +67,92 @@ window.PQCCrypto = (function() {
     }
 
     /**
-     * Generate a Kyber768 keypair
+     * Generate a ML-KEM-768 (Kyber768) keypair
      * 
-     * Note: This is a simplified implementation using Web Crypto API.
-     * In production, replace with actual liboqs-JS Kyber768.
+     * This generates REAL post-quantum keys using NIST FIPS 203 ML-KEM.
      * 
      * @returns {Promise<{publicKey: Uint8Array, privateKey: Uint8Array}>}
      */
     async function generateKeyPair() {
-        // Generate an ECDH keypair as a stand-in for Kyber768
-        // In production: use liboqs-js Kyber768
-        const keyPair = await crypto.subtle.generateKey(
-            {
-                name: 'ECDH',
-                namedCurve: 'P-384'
-            },
-            true,
-            ['deriveBits']
-        );
-
-        // Export keys
-        const publicKeyRaw = await crypto.subtle.exportKey('spki', keyPair.publicKey);
-        const privateKeyRaw = await crypto.subtle.exportKey('pkcs8', keyPair.privateKey);
-
-        // Pad to Kyber sizes for API compatibility
-        const publicKey = new Uint8Array(KYBER_PUBLIC_KEY_SIZE);
-        publicKey.set(new Uint8Array(publicKeyRaw), 0);
+        const mlKem = getMlKem();
         
-        const privateKey = new Uint8Array(KYBER_PRIVATE_KEY_SIZE);
-        privateKey.set(new Uint8Array(privateKeyRaw), 0);
-        // Store actual lengths at the end
-        privateKey[KYBER_PRIVATE_KEY_SIZE - 4] = (publicKeyRaw.byteLength >> 8) & 0xFF;
-        privateKey[KYBER_PRIVATE_KEY_SIZE - 3] = publicKeyRaw.byteLength & 0xFF;
-        privateKey[KYBER_PRIVATE_KEY_SIZE - 2] = (privateKeyRaw.byteLength >> 8) & 0xFF;
-        privateKey[KYBER_PRIVATE_KEY_SIZE - 1] = privateKeyRaw.byteLength & 0xFF;
-
-        return { publicKey, privateKey };
+        console.log('[PQC Crypto] Generating REAL ML-KEM-768 keypair...');
+        
+        // Generate using @noble/post-quantum
+        const { publicKey, secretKey } = mlKem.keygen();
+        
+        console.log('[PQC Crypto] ✅ Generated ML-KEM-768 keypair:');
+        console.log(`  - Public key: ${publicKey.length} bytes`);
+        console.log(`  - Private key: ${secretKey.length} bytes`);
+        console.log(`  - Algorithm: ML-KEM-768 (NIST FIPS 203)`);
+        
+        // Update sizes from library
+        KYBER_PUBLIC_KEY_SIZE = publicKey.length;
+        KYBER_PRIVATE_KEY_SIZE = secretKey.length;
+        
+        return { 
+            publicKey: new Uint8Array(publicKey), 
+            privateKey: new Uint8Array(secretKey) 
+        };
     }
 
     /**
-     * Perform key encapsulation (KEM)
+     * Perform ML-KEM key encapsulation (KEM)
+     * 
+     * Creates a shared secret and ciphertext using REAL post-quantum crypto.
      * 
      * @param {Uint8Array} recipientPublicKey - Recipient's public key
      * @returns {Promise<{ciphertext: Uint8Array, sharedSecret: Uint8Array}>}
      */
     async function encapsulate(recipientPublicKey) {
-        // Generate ephemeral keypair
-        const ephemeralKeyPair = await crypto.subtle.generateKey(
-            {
-                name: 'ECDH',
-                namedCurve: 'P-384'
-            },
-            true,
-            ['deriveBits']
-        );
+        const mlKem = getMlKem();
+        
+        console.log('[PQC Crypto] Encapsulating with ML-KEM-768...');
+        console.log(`  - Public key size: ${recipientPublicKey.length} bytes`);
+        
+        // Use @noble/post-quantum encapsulation
+        const { cipherText, sharedSecret } = mlKem.encapsulate(recipientPublicKey);
+        
+        console.log('[PQC Crypto] ✅ Encapsulation complete:');
+        console.log(`  - Ciphertext: ${cipherText.length} bytes`);
+        console.log(`  - Shared secret: ${sharedSecret.length} bytes`);
+        
+        // Update size from library
+        KYBER_CIPHERTEXT_SIZE = cipherText.length;
 
-        // Extract actual public key length
-        const pubKeyLen = recipientPublicKey[KYBER_PUBLIC_KEY_SIZE - 4] 
-            ? ((recipientPublicKey[KYBER_PUBLIC_KEY_SIZE - 4] << 8) | recipientPublicKey[KYBER_PUBLIC_KEY_SIZE - 3])
-            : 120; // Default SPKI P-384 length
-
-        // Import recipient's public key
-        const recipientPubKeyRaw = recipientPublicKey.slice(0, pubKeyLen || 120);
-        const recipientPubKey = await crypto.subtle.importKey(
-            'spki',
-            recipientPubKeyRaw,
-            { name: 'ECDH', namedCurve: 'P-384' },
-            false,
-            []
-        );
-
-        // Derive shared secret
-        const sharedBits = await crypto.subtle.deriveBits(
-            { name: 'ECDH', public: recipientPubKey },
-            ephemeralKeyPair.privateKey,
-            384
-        );
-
-        // Export ephemeral public key as ciphertext
-        const ephemeralPubRaw = await crypto.subtle.exportKey('spki', ephemeralKeyPair.publicKey);
-        const ciphertext = new Uint8Array(KYBER_CIPHERTEXT_SIZE);
-        ciphertext.set(new Uint8Array(ephemeralPubRaw), 0);
-        ciphertext[KYBER_CIPHERTEXT_SIZE - 2] = (ephemeralPubRaw.byteLength >> 8) & 0xFF;
-        ciphertext[KYBER_CIPHERTEXT_SIZE - 1] = ephemeralPubRaw.byteLength & 0xFF;
-
-        // Hash shared bits to get 32-byte shared secret
-        const sharedSecretHash = await crypto.subtle.digest('SHA-256', sharedBits);
-        const sharedSecret = new Uint8Array(sharedSecretHash);
-
-        return { ciphertext, sharedSecret };
+        return { 
+            ciphertext: new Uint8Array(cipherText), 
+            sharedSecret: new Uint8Array(sharedSecret) 
+        };
     }
 
     /**
-     * Perform key decapsulation (KEM)
+     * Perform ML-KEM key decapsulation (KEM)
+     * 
+     * Recovers the shared secret using REAL post-quantum crypto.
      * 
      * @param {Uint8Array} ciphertext - Ciphertext from encapsulation
      * @param {Uint8Array} privateKey - Recipient's private key
-     * @returns {Promise<Uint8Array>} Shared secret
+     * @returns {Promise<Uint8Array>} Shared secret (32 bytes)
      */
     async function decapsulate(ciphertext, privateKey) {
-        // Extract actual lengths
-        const privKeyLen = (privateKey[KYBER_PRIVATE_KEY_SIZE - 2] << 8) | privateKey[KYBER_PRIVATE_KEY_SIZE - 1];
-        const ctLen = (ciphertext[KYBER_CIPHERTEXT_SIZE - 2] << 8) | ciphertext[KYBER_CIPHERTEXT_SIZE - 1];
+        const mlKem = getMlKem();
+        
+        console.log('[PQC Crypto] Decapsulating with ML-KEM-768...');
+        console.log(`  - Ciphertext size: ${ciphertext.length} bytes`);
+        console.log(`  - Private key size: ${privateKey.length} bytes`);
+        
+        // Use @noble/post-quantum decapsulation
+        const sharedSecret = mlKem.decapsulate(ciphertext, privateKey);
+        
+        console.log('[PQC Crypto] ✅ Decapsulation complete:');
+        console.log(`  - Shared secret: ${sharedSecret.length} bytes`);
 
-        // Import private key
-        const privKeyRaw = privateKey.slice(0, privKeyLen || 185);
-        const privKey = await crypto.subtle.importKey(
-            'pkcs8',
-            privKeyRaw,
-            { name: 'ECDH', namedCurve: 'P-384' },
-            false,
-            ['deriveBits']
-        );
-
-        // Import ephemeral public key from ciphertext
-        const ephemeralPubRaw = ciphertext.slice(0, ctLen || 120);
-        const ephemeralPubKey = await crypto.subtle.importKey(
-            'spki',
-            ephemeralPubRaw,
-            { name: 'ECDH', namedCurve: 'P-384' },
-            false,
-            []
-        );
-
-        // Derive shared secret
-        const sharedBits = await crypto.subtle.deriveBits(
-            { name: 'ECDH', public: ephemeralPubKey },
-            privKey,
-            384
-        );
-
-        // Hash shared bits to get 32-byte shared secret
-        const sharedSecretHash = await crypto.subtle.digest('SHA-256', sharedBits);
-        return new Uint8Array(sharedSecretHash);
+        return new Uint8Array(sharedSecret);
     }
 
     /**
      * Derive an AES-256 key from passphrase using PBKDF2
-     * 
-     * @param {string} passphrase - User's passphrase
-     * @param {Uint8Array} salt - Random salt
-     * @returns {Promise<CryptoKey>}
      */
     async function deriveKeyFromPassphrase(passphrase, salt) {
         const encoder = new TextEncoder();
@@ -224,10 +180,6 @@ window.PQCCrypto = (function() {
 
     /**
      * Encrypt private key with passphrase using AES-256-GCM
-     * 
-     * @param {Uint8Array} privateKey - Private key to encrypt
-     * @param {string} passphrase - User's passphrase
-     * @returns {Promise<{ciphertext: Uint8Array, salt: Uint8Array, nonce: Uint8Array}>}
      */
     async function encryptPrivateKey(privateKey, passphrase) {
         const salt = getRandomBytes(SALT_LENGTH);
@@ -250,12 +202,6 @@ window.PQCCrypto = (function() {
 
     /**
      * Decrypt private key with passphrase
-     * 
-     * @param {Uint8Array} ciphertext - Encrypted private key
-     * @param {Uint8Array} salt - Salt used for key derivation
-     * @param {Uint8Array} nonce - Nonce used for encryption
-     * @param {string} passphrase - User's passphrase
-     * @returns {Promise<Uint8Array>} Decrypted private key
      */
     async function decryptPrivateKey(ciphertext, salt, nonce, passphrase) {
         const key = await deriveKeyFromPassphrase(passphrase, salt);
@@ -271,10 +217,6 @@ window.PQCCrypto = (function() {
 
     /**
      * Encrypt a message with a shared secret using AES-256-GCM
-     * 
-     * @param {string} message - Plaintext message
-     * @param {Uint8Array} sharedSecret - 32-byte shared secret
-     * @returns {Promise<{ciphertext: Uint8Array, nonce: Uint8Array}>}
      */
     async function encryptMessage(message, sharedSecret) {
         const encoder = new TextEncoder();
@@ -302,11 +244,6 @@ window.PQCCrypto = (function() {
 
     /**
      * Decrypt a message with a shared secret
-     * 
-     * @param {Uint8Array} ciphertext - Encrypted message
-     * @param {Uint8Array} nonce - Nonce used for encryption
-     * @param {Uint8Array} sharedSecret - 32-byte shared secret
-     * @returns {Promise<string>} Decrypted message
      */
     async function decryptMessage(ciphertext, nonce, sharedSecret) {
         const decoder = new TextDecoder();
@@ -328,6 +265,49 @@ window.PQCCrypto = (function() {
         return decoder.decode(decrypted);
     }
 
+    /**
+     * Check if real PQC is available
+     */
+    function isRealPQCAvailable() {
+        return typeof window.ml_kem768 !== 'undefined';
+    }
+
+    /**
+     * Get algorithm info
+     */
+    function getAlgorithmInfo() {
+        const available = isRealPQCAvailable();
+        if (available) {
+            const mlKem = getMlKem();
+            return {
+                name: 'ML-KEM-768',
+                standard: 'NIST FIPS 203',
+                type: mlKem.info?.type || 'ml-kem',
+                quantumSafe: true,
+                library: '@noble/post-quantum',
+                publicKeySize: mlKem.lengths?.publicKey || KYBER_PUBLIC_KEY_SIZE,
+                secretKeySize: mlKem.lengths?.secretKey || KYBER_PRIVATE_KEY_SIZE,
+                ciphertextSize: mlKem.lengths?.cipherText || KYBER_CIPHERTEXT_SIZE,
+                sharedSecretSize: KYBER_SHARED_SECRET_SIZE
+            };
+        }
+        return {
+            name: 'Not Available',
+            quantumSafe: false,
+            error: 'ML-KEM library not loaded'
+        };
+    }
+
+    // Initialize on load
+    setTimeout(() => {
+        if (isRealPQCAvailable()) {
+            console.log('[PQC Crypto] ✅ REAL ML-KEM-768 (Kyber768) available');
+            console.log('[PQC Crypto] Algorithm info:', getAlgorithmInfo());
+        } else {
+            console.error('[PQC Crypto] ❌ ML-KEM library not loaded! Encryption will fail.');
+        }
+    }, 200);
+
     // Public API
     return {
         generateKeyPair,
@@ -339,6 +319,8 @@ window.PQCCrypto = (function() {
         decryptMessage,
         arrayBufferToBase64,
         base64ToArrayBuffer,
+        isRealPQCAvailable,
+        getAlgorithmInfo,
         KYBER_PUBLIC_KEY_SIZE,
         KYBER_PRIVATE_KEY_SIZE,
         KYBER_CIPHERTEXT_SIZE,

@@ -52,11 +52,62 @@ window.PQCCompose = (function() {
     function setupComposeUI() {
         console.log('[PQC Compose] Setting up compose UI');
         
+        // Clean any PQC encrypted content from quoted reply/forward text
+        setTimeout(cleanEncryptedQuotedText, 300);
+        
         // Multiple attempts to add toggle
         addEncryptionToggle();
         
         // Watch recipient field for changes
         setTimeout(watchRecipientField, 500);
+    }
+
+    /**
+     * Strip PQC encrypted blocks from the compose body.
+     * When replying/forwarding, Roundcube quotes the original message which
+     * may contain the raw encrypted payload. Replace it with a clean placeholder.
+     */
+    function cleanEncryptedQuotedText() {
+        const PQC_BEGIN = '-----BEGIN QUMAIL PQC ENCRYPTED MESSAGE-----';
+        const PQC_END = '-----END QUMAIL PQC ENCRYPTED MESSAGE-----';
+
+        // Try textarea first (plain text editor)
+        const textarea = document.getElementById('composebody') ||
+                         document.querySelector('textarea[name="_message"]');
+        if (textarea && textarea.value && textarea.value.includes(PQC_BEGIN)) {
+            console.log('[PQC Compose] Cleaning PQC content from textarea');
+            textarea.value = stripPqcBlock(textarea.value);
+            return;
+        }
+
+        // Try iframe (HTML editor like TinyMCE)
+        const iframe = document.querySelector('iframe');
+        if (iframe && iframe.contentDocument && iframe.contentDocument.body) {
+            const body = iframe.contentDocument.body;
+            const html = body.innerHTML;
+            if (html.includes(PQC_BEGIN) || html.includes('BEGIN QUMAIL PQC')) {
+                console.log('[PQC Compose] Cleaning PQC content from HTML editor');
+                body.innerHTML = stripPqcBlock(html);
+            }
+        }
+    }
+
+    /**
+     * Remove everything between (and including) the PQC markers.
+     */
+    function stripPqcBlock(text) {
+        const beginMarker = '-----BEGIN QUMAIL PQC ENCRYPTED MESSAGE-----';
+        const endMarker = '-----END QUMAIL PQC ENCRYPTED MESSAGE-----';
+
+        // Handle both plain text and HTML: the markers may be preceded by
+        // quoting characters like "> " on each line.
+        // Use a regex that grabs from the marker line through the end marker line.
+        const regex = new RegExp(
+            '[>\\s]*-{5}BEGIN QUMAIL PQC ENCRYPTED MESSAGE-{5}[\\s\\S]*?-{5}END QUMAIL PQC ENCRYPTED MESSAGE-{5}',
+            'g'
+        );
+
+        return text.replace(regex, '[Encrypted message]');
     }
 
     /**
