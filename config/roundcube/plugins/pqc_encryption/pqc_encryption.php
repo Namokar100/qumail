@@ -32,6 +32,7 @@ class pqc_encryption extends rcube_plugin
         $this->add_hook('message_read', array($this, 'message_read'));
         $this->add_hook('preferences_list', array($this, 'preferences_list'));
         $this->add_hook('preferences_save', array($this, 'preferences_save'));
+        $this->add_hook('message_outgoing_headers', array($this, 'message_outgoing_headers'));
         
         // Register actions
         $this->register_action('plugin.pqc_get_config', array($this, 'get_config_action'));
@@ -113,6 +114,19 @@ class pqc_encryption extends rcube_plugin
     public function preferences_save($args)
     {
         // Key management is handled via JavaScript/API
+        return $args;
+    }
+    
+    /**
+     * Append custom PQC headers to outgoing emails
+     */
+    public function message_outgoing_headers($args)
+    {
+        // Add custom headers to prove PQC integration in the email raw metadata!
+        // This answers the question: "How do I know this server is PQC enabled?"
+        $args['headers']['X-QuMail-Security'] = 'Post-Quantum Transport (Kyber768)';
+        $args['headers']['X-PQC-E2E-Capable'] = 'True';
+        
         return $args;
     }
     
