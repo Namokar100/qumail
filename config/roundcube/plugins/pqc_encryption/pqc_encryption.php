@@ -32,7 +32,7 @@ class pqc_encryption extends rcube_plugin
         $this->add_hook('message_read', array($this, 'message_read'));
         $this->add_hook('preferences_list', array($this, 'preferences_list'));
         $this->add_hook('preferences_save', array($this, 'preferences_save'));
-        $this->add_hook('message_outgoing_headers', array($this, 'message_outgoing_headers'));
+        $this->add_hook('message_ready', array($this, 'message_ready_hook'));
         
         // Register actions
         $this->register_action('plugin.pqc_get_config', array($this, 'get_config_action'));
@@ -62,6 +62,7 @@ class pqc_encryption extends rcube_plugin
         $config = array(
             'key_service_url' => $this->rc->config->get('pqc_key_service_url', 'http://key-service:8081'),
             'domain' => $this->rc->config->get('pqc_domain', 'qumail.work.gd'),
+            'env' => $this->rc->config->get('pqc_env', 'local'),
             'session_timeout' => $this->rc->config->get('pqc_session_timeout', 3600),
             'user_email' => $this->rc->user->get_username(),
         );
@@ -120,12 +121,16 @@ class pqc_encryption extends rcube_plugin
     /**
      * Append custom PQC headers to outgoing emails
      */
-    public function message_outgoing_headers($args)
+    public function message_ready_hook($args)
     {
         // Add custom headers to prove PQC integration in the email raw metadata!
         // This answers the question: "How do I know this server is PQC enabled?"
-        $args['headers']['X-QuMail-Security'] = 'Post-Quantum Transport (Kyber768)';
-        $args['headers']['X-PQC-E2E-Capable'] = 'True';
+        if (isset($args['message']) && method_exists($args['message'], 'headers')) {
+            $args['message']->headers(array(
+                'X-QuMail-Security' => 'Post-Quantum Transport (Kyber768)',
+                'X-PQC-E2E-Capable' => 'True'
+            ), true);
+        }
         
         return $args;
     }
@@ -138,6 +143,7 @@ class pqc_encryption extends rcube_plugin
         $config = array(
             'key_service_url' => $this->rc->config->get('pqc_key_service_url', 'http://key-service:8081'),
             'domain' => $this->rc->config->get('pqc_domain', 'qumail.work.gd'),
+            'env' => $this->rc->config->get('pqc_env', 'local'),
             'session_timeout' => $this->rc->config->get('pqc_session_timeout', 3600),
             'user_email' => $this->rc->user->get_username(),
         );

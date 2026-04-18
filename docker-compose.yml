@@ -4,7 +4,7 @@ services:
     image: ghcr.io/docker-mailserver/docker-mailserver:15.1.0
     container_name: mail
     hostname: mail
-    domainname: qumail.work.gd
+    domainname: ${DOMAIN}
     env_file: ./mail.env
     ports:
       - "25:25"     # SMTP
@@ -47,6 +47,8 @@ services:
     image: roundcube/roundcubemail
     container_name: roundcube
     environment:
+      DOMAIN: ${DOMAIN}
+      ENVIRONMENT: ${ENVIRONMENT}
       ROUNDCUBEMAIL_DB_TYPE: pgsql
       ROUNDCUBEMAIL_DB_HOST: db
       ROUNDCUBEMAIL_DB_NAME: roundcube

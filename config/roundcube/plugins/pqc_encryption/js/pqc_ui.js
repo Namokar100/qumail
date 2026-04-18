@@ -32,6 +32,15 @@ window.PQCUI = (function() {
         
         config = rcmail.env.pqc_config || {};
         
+        // Disable console.log entirely when in production
+        if (config.env === 'prod') {
+            const noop = function() {};
+            console.log = noop;
+            console.info = noop;
+            console.debug = noop;
+            console.warn = noop;
+        }
+        
         // Check if we have user email (logged in)
         if (!config.user_email) {
             console.log('[PQC] No user email, not initializing');
@@ -141,6 +150,16 @@ window.PQCUI = (function() {
     function getKeyServiceUrl() {
         // Use relative /api path proxied via Nginx 
         // to solve CORS and HTTPS mixed-content blocks
+        
+        // Handle local testing fallback when bypassing Nginx
+        if (config && config.env === 'local') {
+            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                if (window.location.port === '8080') {
+                    return 'http://localhost:8081';
+                }
+            }
+        }
+        
         return '/api';
     }
 

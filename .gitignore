@@ -17,6 +17,10 @@ data/db/*
 *.env.local
 *.env.*.local
 
+# Generated configurations
+config/postfix-accounts.cf
+config/rspamd/override.d/dkim_signing.conf
+
 # Docker
 .docker/
 docker-compose.override.yml

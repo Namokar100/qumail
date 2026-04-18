@@ -153,12 +153,15 @@ window.PQCCompose = (function() {
         // Always show the container - initially with disabled state
         container.style.cssText = 'display:inline-flex; padding:10px; margin:10px 0; background:#f5f5f5; border-radius:8px; align-items:center; gap:10px;';
         
+        const config = PQCUI ? PQCUI.getConfig() : {};
+        const domain = config.domain || 'qumail.work.gd';
+        
         container.innerHTML = `
             <button type="button" id="pqc-encrypt-toggle" class="btn pqc-toggle disabled" style="padding:8px 16px; border:1px solid #ccc; border-radius:4px; cursor:pointer; background:#fff;" disabled>
                 <span class="icon">🔒</span>
                 <span class="label">PQC Encrypt</span>
             </button>
-            <span id="pqc-encrypt-status" class="pqc-status-text" style="color:#666; font-size:13px;">Enter @qumail.work.gd recipient</span>
+            <span id="pqc-encrypt-status" class="pqc-status-text" style="color:#666; font-size:13px;">Enter @${domain} recipient</span>
         `;
         
         // Insert at the top of compose area
@@ -364,7 +367,9 @@ window.PQCCompose = (function() {
         }
         encryptionEnabled = false;
         recipientHasKeys = false;
-        showStatusMessage('Enter @qumail.work.gd recipient');
+        const config = PQCUI ? PQCUI.getConfig() : {};
+        const domain = config.domain || 'qumail.work.gd';
+        showStatusMessage(`Enter @${domain} recipient`);
         console.log('[PQC E2E] Toggle button reset to initial disabled state');
     }
 

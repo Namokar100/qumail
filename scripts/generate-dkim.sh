@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-DOMAIN=${1:-qumail.work.gd}
+if [ -f .env ]; then
+    export $(cat .env | grep -v '^#' | awk '/=/ {print $1}')
+fi
+
+DOMAIN=${1:-${DOMAIN:-qumail.work.gd}}
 SELECTOR=${2:-mail}
 
 OUTDIR="data/dkim/${DOMAIN}_${SELECTOR}"

@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+DOMAIN=${DOMAIN:-qumail.work.gd}
+ENVIRONMENT=${ENVIRONMENT:-local}
+
 echo "Creating required directories..."
 mkdir -p data/maildata data/mailstate data/maillogs data/dkim data/db data/ssl config
 
@@ -9,8 +12,9 @@ chmod -R 700 data/maildata data/mailstate data/db || true
 chmod -R 755 data/maillogs || true
 chmod -R 700 data/dkim || true
 
-if [ ! -f data/ssl/fullchain.pem ]; then
-  echo "Generating self-signed certificate for mail.qumail.work.gd..."
+if [ "$ENVIRONMENT" != "prod" ]; then
+  if [ ! -f data/ssl/fullchain.pem ]; then
+    echo "Generating self-signed certificate for mail.${DOMAIN}..."
   
   # Create a temporary config file to avoid "missing openssl.cfg" errors on Windows
   # and to provide a robust configuration source.
@@ -25,13 +29,13 @@ C = IN
 ST = KA
 L = Bangalore
 O = QuMail
-CN = mail.qumail.work.gd
+CN = mail.${DOMAIN}
 
 [v3_req]
 subjectAltName = @alt_names
 
 [alt_names]
-DNS.1 = mail.qumail.work.gd
+DNS.1 = mail.${DOMAIN}
 DNS.2 = localhost
 EOF
 
@@ -47,6 +51,7 @@ EOF
 
   # Cleanup
   rm -f openssl_temp.cnf
+  fi
 fi
 
 echo "Folders & certificates ready."

@@ -8,8 +8,9 @@
 // Key Service API URL (internal Docker network)
 $config['pqc_key_service_url'] = 'http://key-service:8081';
 
-// QuMail domain for PQC encryption
-$config['pqc_domain'] = 'qumail.work.gd';
+// QuMail domain and environment for PQC encryption
+$config['pqc_domain'] = getenv('DOMAIN') ?: 'qumail.work.gd';
+$config['pqc_env'] = getenv('ENVIRONMENT') ?: 'local';
 
 // Session timeout for cached private key (seconds)
 // Default: 1 hour (3600 seconds)
