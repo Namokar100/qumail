@@ -9,7 +9,7 @@
 $config['pqc_key_service_url'] = 'http://key-service:8081';
 
 // QuMail domain for PQC encryption
-$config['pqc_domain'] = 'qumail.local';
+$config['pqc_domain'] = 'qumail.work.gd';
 
 // Session timeout for cached private key (seconds)
 // Default: 1 hour (3600 seconds)

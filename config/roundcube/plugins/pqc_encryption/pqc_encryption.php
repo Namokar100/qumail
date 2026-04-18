@@ -60,7 +60,7 @@ class pqc_encryption extends rcube_plugin
         // Add PQC config to JavaScript
         $config = array(
             'key_service_url' => $this->rc->config->get('pqc_key_service_url', 'http://key-service:8081'),
-            'domain' => $this->rc->config->get('pqc_domain', 'qumail.local'),
+            'domain' => $this->rc->config->get('pqc_domain', 'qumail.work.gd'),
             'session_timeout' => $this->rc->config->get('pqc_session_timeout', 3600),
             'user_email' => $this->rc->user->get_username(),
         );
@@ -123,7 +123,7 @@ class pqc_encryption extends rcube_plugin
     {
         $config = array(
             'key_service_url' => $this->rc->config->get('pqc_key_service_url', 'http://key-service:8081'),
-            'domain' => $this->rc->config->get('pqc_domain', 'qumail.local'),
+            'domain' => $this->rc->config->get('pqc_domain', 'qumail.work.gd'),
             'session_timeout' => $this->rc->config->get('pqc_session_timeout', 3600),
             'user_email' => $this->rc->user->get_username(),
         );

@@ -2,7 +2,7 @@
  * QuMail PQC Compose Integration
  * 
  * Handles encryption toggle and message encryption when composing emails.
- * Only enables encryption for @qumail.local recipients with PQC keys.
+ * Only enables encryption for @qumail.work.gd recipients with PQC keys.
  */
 
 window.PQCCompose = (function() {
@@ -158,7 +158,7 @@ window.PQCCompose = (function() {
                 <span class="icon">🔒</span>
                 <span class="label">PQC Encrypt</span>
             </button>
-            <span id="pqc-encrypt-status" class="pqc-status-text" style="color:#666; font-size:13px;">Enter @qumail.local recipient</span>
+            <span id="pqc-encrypt-status" class="pqc-status-text" style="color:#666; font-size:13px;">Enter @qumail.work.gd recipient</span>
         `;
         
         // Insert at the top of compose area
@@ -278,9 +278,9 @@ window.PQCCompose = (function() {
         }
 
         const config = PQCUI.getConfig();
-        const domain = config.domain || 'qumail.local';
+        const domain = config.domain || 'qumail.work.gd';
 
-        // Only check @qumail.local addresses
+        // Only check @qumail.work.gd addresses
         if (!email.toLowerCase().endsWith('@' + domain.toLowerCase())) {
             console.log(`[PQC E2E] ❌ Recipient ${email} is NOT a ${domain} user - E2E encryption NOT available`);
             hideEncryptionToggle();
@@ -364,7 +364,7 @@ window.PQCCompose = (function() {
         }
         encryptionEnabled = false;
         recipientHasKeys = false;
-        showStatusMessage('Enter @qumail.local recipient');
+        showStatusMessage('Enter @qumail.work.gd recipient');
         console.log('[PQC E2E] Toggle button reset to initial disabled state');
     }
 

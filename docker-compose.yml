@@ -4,7 +4,7 @@ services:
     image: ghcr.io/docker-mailserver/docker-mailserver:15.1.0
     container_name: mail
     hostname: mail
-    domainname: qumail.local
+    domainname: qumail.work.gd
     env_file: ./mail.env
     ports:
       - "25:25"     # SMTP

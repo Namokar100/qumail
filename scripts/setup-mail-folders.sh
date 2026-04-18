@@ -10,7 +10,7 @@ chmod -R 755 data/maillogs || true
 chmod -R 700 data/dkim || true
 
 if [ ! -f data/ssl/fullchain.pem ]; then
-  echo "Generating self-signed certificate for mail.qumail.local..."
+  echo "Generating self-signed certificate for mail.qumail.work.gd..."
   
   # Create a temporary config file to avoid "missing openssl.cfg" errors on Windows
   # and to provide a robust configuration source.
@@ -25,13 +25,13 @@ C = IN
 ST = KA
 L = Bangalore
 O = QuMail
-CN = mail.qumail.local
+CN = mail.qumail.work.gd
 
 [v3_req]
 subjectAltName = @alt_names
 
 [alt_names]
-DNS.1 = mail.qumail.local
+DNS.1 = mail.qumail.work.gd
 DNS.2 = localhost
 EOF
 

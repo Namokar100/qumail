@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-DOMAIN=${1:-qumail.local}
+DOMAIN=${1:-qumail.work.gd}
 SELECTOR=${2:-mail}
 
 OUTDIR="data/dkim/${DOMAIN}_${SELECTOR}"

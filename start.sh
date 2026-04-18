@@ -20,9 +20,9 @@ docker compose up -d
 echo "[3/4] Creating default user to unblock startup..."
 # We wait a few seconds for the container to actually be "running" enough to accept exec
 sleep 10
-if ! docker exec mail setup email list | grep -q "user@qumail.local"; then
-    echo "Creating default user: user@qumail.local / password123"
-    docker exec mail setup email add user@qumail.local password123
+if ! docker exec mail setup email list | grep -q "user@qumail.work.gd"; then
+    echo "Creating default user: user@qumail.work.gd / password123"
+    docker exec mail setup email add user@qumail.work.gd password123
 else
     echo "Default user already exists."
 fi
@@ -37,15 +37,15 @@ done
 echo " Ready!"
 
 # 5. DKIM Setup (Optional but good)
-if [ ! -f "data/dkim/qumail.local_mail/mail.private" ]; then
+if [ ! -f "data/dkim/qumail.work.gd_mail/mail.private" ]; then
     echo "Generating DKIM keys..."
-    docker exec mail setup config dkim domain 'qumail.local' || true
+    docker exec mail setup config dkim domain 'qumail.work.gd' || true
 fi
 
 echo ""
 echo "=== System is Online ==="
 echo "Webmail: http://localhost:8080"
-echo "Login:   user@qumail.local"
+echo "Login:   user@qumail.work.gd"
 echo "Pass:    password123"
 echo ""
 echo "To stop: docker compose down"
