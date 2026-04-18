@@ -77,7 +77,7 @@ services:
     image: openquantumsafe/nginx:latest
     container_name: pqc_proxy
     ports:
-      - "1443:443"   # PQC HTTPS
+      - "443:443"   # PQC HTTPS (Standard port to hide from URL)
       - "1025:1025"  # PQC SMTP Proxy
       - "1143:1143"  # PQC IMAP Proxy
     volumes:
