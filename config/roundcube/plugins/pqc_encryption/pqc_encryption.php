@@ -123,13 +123,17 @@ class pqc_encryption extends rcube_plugin
      */
     public function message_ready_hook($args)
     {
-        // Add custom headers to prove PQC integration in the email raw metadata!
-        // This answers the question: "How do I know this server is PQC enabled?"
-        if (isset($args['message']) && method_exists($args['message'], 'headers')) {
-            $args['message']->headers(array(
-                'X-QuMail-Security' => 'Post-Quantum Transport (Kyber768)',
-                'X-PQC-E2E-Capable' => 'True'
-            ), true);
+        // Add custom headers only if the message is actually PQC encrypted
+        if (isset($args['message']) && method_exists($args['message'], 'get')) {
+            $body = $args['message']->get();
+            
+            if (strpos($body, 'BEGIN QUMAIL PQC ENCRYPTED MESSAGE') !== false) {
+                $args['message']->headers(array(
+                    'Content-Type' => 'text/plain; charset=UTF-8',
+                    'X-QuMail-Security' => 'Post-Quantum Transport (Kyber768)',
+                    'X-PQC-E2E-Capable' => 'True'
+                ), true);
+            }
         }
         
         return $args;

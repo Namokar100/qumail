@@ -825,5 +825,5 @@ if (typeof rcmail !== 'undefined') {
         return originalCommand(command, props, obj, event);
     };
     
-    console.log('[PQC E2E] ✓ rcmail.command hooked for send interception');
+
 }

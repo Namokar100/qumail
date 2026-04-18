@@ -837,9 +837,6 @@ var NoblePQC = (() => {
 
   // entry.js
   window.ml_kem768 = ml_kem768;
-  console.log("[Noble PQC] ML-KEM-768 (Kyber768) loaded - NIST FIPS 203 compliant");
-  console.log("[Noble PQC] Library info:", ml_kem768.info);
-  console.log("[Noble PQC] Key sizes:", ml_kem768.lengths);
 })();
 /*! Bundled license information:
 
