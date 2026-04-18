@@ -14,15 +14,19 @@ fi
 
 # 2. Start Containers
 echo "[2/4] Starting Docker containers..."
-docker compose up -d
+if command -v docker-compose &> /dev/null; then
+    docker-compose up -d
+else
+    docker compose up -d
+fi
 
 # 3. Create Default User (Crucial to unblock startup)
 echo "[3/4] Creating default user to unblock startup..."
 # We wait a few seconds for the container to actually be "running" enough to accept exec
-sleep 10
-if ! docker exec mail setup email list | grep -q "user@qumail.work.gd"; then
+sleep 15
+if ! docker exec mail setup email list 2>/dev/null | grep -q "user@qumail.work.gd"; then
     echo "Creating default user: user@qumail.work.gd / password123"
-    docker exec mail setup email add user@qumail.work.gd password123
+    docker exec mail setup email add user@qumail.work.gd password123 || true
 else
     echo "Default user already exists."
 fi
@@ -48,4 +52,4 @@ echo "Webmail: http://localhost:8080"
 echo "Login:   user@qumail.work.gd"
 echo "Pass:    password123"
 echo ""
-echo "To stop: docker compose down"
+echo "To stop: docker compose down (or docker-compose down)"
