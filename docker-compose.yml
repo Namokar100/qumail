@@ -87,6 +87,7 @@ services:
     depends_on:
       - mail
       - roundcube
+      - key-service
 
   # Key Management Service for PQC E2E Encryption
   key-service:

@@ -48,7 +48,7 @@ fi
 
 echo ""
 echo "=== System is Online ==="
-echo "Webmail: http://localhost:8080"
+echo "Webmail: https://mail.qumail.work.gd"
 echo "Login:   user@qumail.work.gd"
 echo "Pass:    password123"
 echo ""
