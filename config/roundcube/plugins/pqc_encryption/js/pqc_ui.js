@@ -139,8 +139,9 @@ window.PQCUI = (function() {
      * Get Key Service URL (browser-accessible)
      */
     function getKeyServiceUrl() {
-        // Use localhost for browser access (mapped via Docker ports)
-        return 'http://localhost:8081';
+        // Use relative /api path proxied via Nginx 
+        // to solve CORS and HTTPS mixed-content blocks
+        return '/api';
     }
 
     /**
