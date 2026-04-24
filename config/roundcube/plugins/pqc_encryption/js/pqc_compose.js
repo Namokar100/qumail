@@ -150,18 +150,16 @@ window.PQCCompose = (function() {
         const container = document.createElement('div');
         container.id = 'pqc-encrypt-container';
         container.className = 'pqc-encrypt-container';
-        // Always show the container - initially with disabled state
-        container.style.cssText = 'display:inline-flex; padding:10px; margin:10px 0; background:#f5f5f5; border-radius:8px; align-items:center; gap:10px;';
         
         const config = PQCUI ? PQCUI.getConfig() : {};
         const domain = config.domain || 'qumail.work.gd';
         
         container.innerHTML = `
-            <button type="button" id="pqc-encrypt-toggle" class="btn pqc-toggle disabled" style="padding:8px 16px; border:1px solid #ccc; border-radius:4px; cursor:pointer; background:#fff;" disabled>
+            <button type="button" id="pqc-encrypt-toggle" class="btn pqc-toggle disabled" disabled>
                 <span class="icon">🔒</span>
                 <span class="label">PQC Encrypt</span>
             </button>
-            <span id="pqc-encrypt-status" class="pqc-status-text" style="color:#666; font-size:13px;">Enter @${domain} recipient</span>
+            <span id="pqc-encrypt-status" class="pqc-status-text">Enter @${domain} recipient</span>
         `;
         
         // Insert at the top of compose area
@@ -360,10 +358,9 @@ window.PQCCompose = (function() {
         // Don't hide - just reset to disabled state
         if (toggleButton) {
             toggleButton.classList.add('disabled');
+            toggleButton.classList.remove('active');
             toggleButton.disabled = true;
             toggleButton.innerHTML = '<span class="icon">🔒</span><span class="label">PQC Encrypt</span>';
-            toggleButton.style.background = '#fff';
-            toggleButton.style.color = '#333';
         }
         encryptionEnabled = false;
         recipientHasKeys = false;
@@ -483,15 +480,12 @@ window.PQCCompose = (function() {
 
         if (encryptionEnabled) {
             toggleButton.classList.add('active');
-            toggleButton.style.background = '#4CAF50';
-            toggleButton.style.color = 'white';
+            toggleButton.classList.remove('disabled');
             toggleButton.innerHTML = '<span class="icon">🔐</span><span class="label">E2E ON</span>';
             showStatusMessage('✓ E2E Encryption ENABLED - message will be encrypted');
             console.log('[PQC E2E] 🔐 E2E Encryption is NOW ON - message WILL be encrypted before sending');
         } else {
             toggleButton.classList.remove('active');
-            toggleButton.style.background = '#fff';
-            toggleButton.style.color = '#333';
             toggleButton.innerHTML = '<span class="icon">🔓</span><span class="label">PQC Encrypt</span>';
             showStatusMessage('Click to enable E2E encryption');
             console.log('[PQC E2E] 🔓 E2E Encryption is OFF - message will be sent as plaintext');

@@ -97,9 +97,8 @@ window.PQCUI = (function() {
         btn.id = 'pqc-status-btn';
         btn.className = 'button pqc-status';
         btn.href = '#';
-        btn.title = 'PQC Encryption Status';
-        btn.innerHTML = '<span class="inner">🔐 PQC</span>';
-        btn.style.cssText = 'cursor:pointer; padding:8px 12px; margin:4px; display:inline-flex; align-items:center; border-radius:4px; background:#f0f0f0;';
+        btn.title = 'PQC Key Management';
+        btn.innerHTML = '<span class="pqc-btn-icon">🔒</span><span class="pqc-btn-label">PQC</span>';
         btn.onclick = function(e) {
             e.preventDefault();
             e.stopPropagation();
@@ -107,9 +106,6 @@ window.PQCUI = (function() {
         };
         toolbar.appendChild(btn);
         console.log('[PQC] Toolbar button added');
-        
-        // Update status after button is added
-        updateStatusIndicator();
     }
 
     /**
@@ -165,32 +161,28 @@ window.PQCUI = (function() {
 
     /**
      * Update the status indicator in toolbar
+     * Only updates the tooltip — the label stays as a short static "PQC"
+     * to avoid text overflow in the narrow Roundcube sidebar.
+     * The private key cache is RAM-only, so status always resets to
+     * "locked" on page refresh; showing that in the label was confusing.
      */
     function updateStatusIndicator() {
         const btn = document.getElementById('pqc-status-btn');
         if (!btn) return;
 
-        btn.classList.remove('status-none', 'status-locked', 'status-unlocked');
-        
+        // Only update the tooltip, not the visible label
         switch(keyStatus) {
             case 'none':
-                btn.classList.add('status-none');
-                btn.title = 'No PQC keys - Click to setup';
-                btn.innerHTML = '<span class="inner">🔓 Setup PQC</span>';
+                btn.title = 'No PQC keys — click to set up';
                 break;
             case 'locked':
-                btn.classList.add('status-locked');
-                btn.title = 'PQC keys available - Locked';
-                btn.innerHTML = '<span class="inner">🔒 PQC Locked</span>';
+                btn.title = 'PQC keys available — click to unlock';
                 break;
             case 'unlocked':
-                btn.classList.add('status-unlocked');
-                btn.title = 'PQC keys active - Unlocked';
-                btn.innerHTML = '<span class="inner">🔐 PQC Active</span>';
+                btn.title = 'PQC keys unlocked for this session';
                 break;
             default:
-                btn.title = 'PQC Status Unknown';
-                btn.innerHTML = '<span class="inner">❓ PQC</span>';
+                btn.title = 'PQC Key Management';
         }
     }
 
@@ -292,9 +284,9 @@ window.PQCUI = (function() {
                 <div class="pqc-dialog-content">
                     <h2>🔄 Regenerate PQC Keys</h2>
                     
-                    <div class="pqc-warning-box" style="background:#ffebee; border-color:#f44336; border-left-color:#d32f2f;">
-                        <h3 style="color:#c62828;">⚠️ CRITICAL DATA LOSS WARNING</h3>
-                        <p style="color:#c62828; font-weight:bold;">You are about to generate completely new encryption keys.</p>
+                    <div class="pqc-warning-box critical">
+                        <h3>⚠️ CRITICAL DATA LOSS WARNING</h3>
+                        <p><strong>You are about to generate completely new encryption keys.</strong></p>
                         <ul>
                             <li><strong>ALL previously encrypted emails will become PERMANENTLY UNREADABLE</strong></li>
                             <li>This action <strong>CANNOT be undone</strong></li>
@@ -326,7 +318,7 @@ window.PQCUI = (function() {
                         <div id="pqc-setup-error" class="pqc-error" style="display:none;"></div>
                         
                         <div class="pqc-buttons">
-                            <button id="pqc-generate-btn" class="btn" style="background:#d32f2f; color:white;" disabled>
+                            <button id="pqc-generate-btn" class="btn btn-danger" disabled>
                                 ⚠️ Regenerate Keys (Destroy Old Data)
                             </button>
                             <button id="pqc-cancel-btn" class="btn">Cancel</button>
@@ -495,14 +487,13 @@ window.PQCUI = (function() {
                             <button id="pqc-unlock-btn" class="btn btn-primary">Unlock</button>
                         </div>
                         
-                        <div class="pqc-divider" style="text-align:center; margin:20px 0; color:#888;">
-                            <span style="background:#fff; padding:0 10px;">or</span>
-                            <hr style="margin-top:-10px; border:none; border-top:1px solid #ddd;">
+                        <div class="pqc-divider">
+                            <span>or</span>
                         </div>
                         
-                        <div style="text-align:center;">
-                            <p style="color:#666; font-size:13px; margin-bottom:10px;">Forgot passphrase? Generate new keys (old encrypted emails will be lost)</p>
-                            <button id="pqc-regenerate-btn" class="btn" style="background:#ff9800; color:white;">Generate New Keys</button>
+                        <div class="pqc-regen-area">
+                            <p>Forgot passphrase? Generate new keys (old encrypted emails will be lost)</p>
+                            <button id="pqc-regenerate-btn" class="btn btn-danger">Generate New Keys</button>
                         </div>
                     ` : `
                         <p class="pqc-info">Your encryption keys are active for this session.</p>

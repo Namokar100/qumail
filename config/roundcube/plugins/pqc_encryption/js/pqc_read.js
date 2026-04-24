@@ -195,21 +195,17 @@ window.PQCRead = (function() {
      */
     function showUnlockPrompt(container, payload) {
         container.innerHTML = `
-            <div class="pqc-encrypted-placeholder" style="text-align:center; padding:40px; background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius:12px; color:white;">
-                <div class="pqc-encrypted-icon" style="font-size:64px; margin-bottom:20px;">🔐</div>
-                <h3 style="margin:0 0 10px 0; font-size:24px;">PQC E2E Encrypted Message</h3>
-                <p style="margin:0 0 5px 0; opacity:0.9;">This message was encrypted using <strong>Post-Quantum Cryptography</strong></p>
-                <p style="margin:0 0 20px 0; font-size:13px; opacity:0.7;">Algorithm: ${payload.algorithm || 'Kyber768+AES256GCM'}</p>
+            <div class="pqc-encrypted-placeholder">
+                <div class="pqc-encrypted-icon">🔐</div>
+                <h3>PQC E2E Encrypted Message</h3>
+                <p>This message was encrypted using <strong>Post-Quantum Cryptography</strong></p>
+                <p style="font-size:12px; opacity:0.6;">Algorithm: ${payload.algorithm || 'Kyber768+AES256GCM'}</p>
                 
-                <div style="background:rgba(255,255,255,0.95); padding:25px; border-radius:10px; max-width:350px; margin:0 auto; color:#333;">
-                    <p style="margin:0 0 15px 0; font-weight:600; color:#667eea;">🔑 Enter your passphrase to decrypt</p>
-                    <input type="password" id="pqc-unlock-input" placeholder="Your passphrase" 
-                           style="width:100%; padding:12px; border:2px solid #ddd; border-radius:6px; font-size:14px; box-sizing:border-box;">
-                    <div id="pqc-unlock-error" style="color:#e53935; font-size:12px; margin-top:8px; display:none;"></div>
-                    <button id="pqc-unlock-btn" class="btn btn-primary" 
-                            style="width:100%; padding:12px; margin-top:15px; background:#667eea; color:white; border:none; border-radius:6px; cursor:pointer; font-size:14px; font-weight:600;">
-                        🔓 Unlock & Decrypt
-                    </button>
+                <div class="pqc-unlock-card">
+                    <p class="pqc-unlock-title">🔑 Enter your passphrase to decrypt</p>
+                    <input type="password" id="pqc-unlock-input" placeholder="Your passphrase">
+                    <div id="pqc-unlock-error" class="pqc-unlock-error" style="display:none;"></div>
+                    <button id="pqc-unlock-btn">🔓 Unlock & Decrypt</button>
                 </div>
             </div>
         `;
@@ -259,13 +255,12 @@ window.PQCRead = (function() {
      */
     function showNoKeysError(container) {
         container.innerHTML = `
-            <div class="pqc-encrypted-placeholder error" style="text-align:center; padding:40px; background:#ffebee; border-radius:12px; border:2px solid #ef5350;">
-                <div class="pqc-encrypted-icon" style="font-size:48px; margin-bottom:10px;">❌</div>
-                <h3 style="margin:0 0 10px 0; color:#c62828;">Cannot Decrypt Message</h3>
-                <p style="color:#666;">You don't have PQC encryption keys set up.</p>
-                <p style="color:#666; font-size:13px;">Set up your keys first to decrypt E2E messages.</p>
-                <button onclick="PQCUI.showKeyManagementDialog()" class="btn btn-primary" 
-                        style="margin-top:15px; padding:10px 20px; background:#667eea; color:white; border:none; border-radius:6px; cursor:pointer;">
+            <div class="pqc-encrypted-placeholder error">
+                <div class="pqc-encrypted-icon">❌</div>
+                <h3>Cannot Decrypt Message</h3>
+                <p>You don't have PQC encryption keys set up.</p>
+                <p>Set up your keys first to decrypt E2E messages.</p>
+                <button onclick="PQCUI.showKeyManagementDialog()">
                     Setup PQC Keys
                 </button>
             </div>
@@ -385,47 +380,41 @@ window.PQCRead = (function() {
         if (isSentFolder) {
             // This is expected - show E2E explanation
             container.innerHTML = `
-                <div class="pqc-sent-encrypted" style="text-align:center; padding:30px; background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius:12px; color:white;">
-                    <div style="font-size:48px; margin-bottom:15px;">🔐</div>
-                    <h3 style="margin:0 0 10px 0;">PQC E2E Encrypted Message Sent</h3>
-                    <p style="margin:0 0 15px 0; opacity:0.9; font-size:14px;">
-                        This message was encrypted with the <strong>recipient's public key</strong>.
-                    </p>
-                    <div style="background:rgba(255,255,255,0.15); padding:15px; border-radius:8px; font-size:13px; text-align:left;">
-                        <p style="margin:0 0 8px 0;">✓ <strong>True E2E encryption:</strong> Only the recipient can decrypt this message.</p>
-                        <p style="margin:0;">✓ <strong>Algorithm:</strong> Kyber768 + AES-256-GCM</p>
+                <div class="pqc-encrypted-placeholder">
+                    <div class="pqc-encrypted-icon">🔐</div>
+                    <h3>PQC E2E Encrypted Message Sent</h3>
+                    <p>This message was encrypted with the <strong>recipient's public key</strong>.</p>
+                    
+                    <div class="pqc-sent-info-box">
+                        <p>✓ <strong>True E2E encryption:</strong> Only the recipient can decrypt this message.</p>
+                        <p>✓ <strong>Algorithm:</strong> Kyber768 + AES-256-GCM</p>
                     </div>
-                    <p style="margin:15px 0 0 0; opacity:0.7; font-size:12px;">
-                        This is the expected behavior for end-to-end encryption.
-                    </p>
+                    <p style="margin-top:14px; opacity:0.5; font-size:11px;">This is the expected behavior for end-to-end encryption.</p>
                 </div>
             `;
         } else {
-            // Regular decryption error - might be key mismatch after regeneration
+            // Regular decryption error
             container.innerHTML = `
-                <div class="pqc-encrypted-placeholder error" style="text-align:center; padding:40px; background:#ffebee; border-radius:12px;">
-                    <div class="pqc-encrypted-icon" style="font-size:48px;">❌</div>
-                    <h3 style="color:#c62828;">Decryption Failed</h3>
-                    <p style="color:#666;">${escapeHtml(message)}</p>
+                <div class="pqc-encrypted-placeholder error">
+                    <div class="pqc-encrypted-icon">❌</div>
+                    <h3>Decryption Failed</h3>
+                    <p>${escapeHtml(message)}</p>
                     
-                    <div style="background:#fff3cd; border:1px solid #ffc107; border-radius:8px; padding:15px; margin:15px 0; text-align:left;">
-                        <p style="margin:0 0 8px 0; font-weight:bold; color:#856404;">⚠️ Possible causes:</p>
-                        <ul style="margin:0; padding-left:20px; color:#856404; font-size:13px;">
+                    <div class="pqc-causes-box">
+                        <p class="pqc-causes-title">⚠️ Possible causes:</p>
+                        <ul>
                             <li>Wrong passphrase entered</li>
                             <li>You regenerated your keys after this message was sent</li>
                             <li>Message was encrypted with different keys</li>
                         </ul>
-                        <p style="margin:10px 0 0 0; font-size:12px; color:#856404;">
+                        <p class="pqc-causes-note">
                             <strong>Note:</strong> If you regenerated keys, old messages cannot be recovered.
                         </p>
                     </div>
                     
-                    <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
-                        <button id="pqc-retry-btn" class="btn btn-primary" 
-                                style="padding:10px 20px; background:#667eea; color:white; border:none; border-radius:6px; cursor:pointer;">
-                            🔑 Try Different Passphrase
-                        </button>
-                    </div>
+                    <button id="pqc-retry-btn">
+                        🔑 Try Different Passphrase
+                    </button>
                 </div>
             `;
             
