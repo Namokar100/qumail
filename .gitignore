@@ -51,3 +51,8 @@ yarn-error.log*
 
 explaination_docs/
 .agent/
+
+# SSL and Crypto
+*.pem
+*.key
+*.crt
