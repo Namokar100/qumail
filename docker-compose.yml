@@ -1,56 +1,118 @@
-version: '3.8'
+
 services:
   mail:
-    image: docker.io/mailserver/docker-mailserver:latest
+    image: ghcr.io/docker-mailserver/docker-mailserver:15.1.0
     container_name: mail
     hostname: mail
-    domainname: qumail.local
+    domainname: ${DOMAIN}
     env_file: ./mail.env
     ports:
       - "25:25"     # SMTP
-      - "587:587"   # Submission
+      - "587:587"   # Submission (SMTP auth)
       - "143:143"   # IMAP
       - "993:993"   # IMAPS
     volumes:
       - ./data/maildata:/var/mail
-      - ./data/mailstate:/var/mail-state
-      - ./data/maillogs:/var/log/mail
+      - mailstate:/var/mail-state
+      - maillogs:/var/log/mail
       - ./data/dkim:/tmp/docker-mailserver/opendkim/keys
       - ./config/:/tmp/docker-mailserver/
-    tmpfs:
-      - /var/spool/postfix
-      - /var/lib/rspamd
+      - ./data/ssl:/etc/letsencrypt
     restart: always
     cap_add:
       - NET_ADMIN
-      - SYS_PTRACE
+    healthcheck:
+      test: ["CMD-SHELL", "ss -ltn | grep -q ':25' || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   db:
     image: postgres:15-alpine
     container_name: roundcube_db
     environment:
-      - POSTGRES_DB=roundcube
-      - POSTGRES_USER=roundcube
-      - POSTGRES_PASSWORD=roundcube_pass
+      POSTGRES_DB: roundcube
+      POSTGRES_USER: roundcube
+      POSTGRES_PASSWORD: roundcube_pass
     volumes:
-      - ./data/db:/var/lib/postgresql/data
+      - db:/var/lib/postgresql/data
     restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U roundcube -d roundcube || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   roundcube:
-    image: roundcube/roundcubemail:latest
+    image: roundcube/roundcubemail
     container_name: roundcube
     environment:
-      - ROUNDCUBEMAIL_DB_TYPE=pgsql
-      - ROUNDCUBEMAIL_DB_HOST=db
-      - ROUNDCUBEMAIL_DB_NAME=roundcube
-      - ROUNDCUBEMAIL_DB_USER=roundcube
-      - ROUNDCUBEMAIL_DB_PASSWORD=roundcube_pass
-      - ROUNDCUBEMAIL_DEFAULT_HOST=mail
-      - ROUNDCUBEMAIL_SMTP_SERVER=mail
-      - ROUNDCUBEMAIL_SMTP_PORT=587
+      DOMAIN: ${DOMAIN}
+      ENVIRONMENT: ${ENVIRONMENT}
+      ROUNDCUBEMAIL_DB_TYPE: pgsql
+      ROUNDCUBEMAIL_DB_HOST: db
+      ROUNDCUBEMAIL_DB_NAME: roundcube
+      ROUNDCUBEMAIL_DB_USER: roundcube
+      ROUNDCUBEMAIL_DB_PASSWORD: roundcube_pass
+      ROUNDCUBEMAIL_DEFAULT_HOST: tls://mail
+      ROUNDCUBEMAIL_SMTP_SERVER: tls://mail
+      ROUNDCUBEMAIL_SMTP_PORT: 587
+      # Internal self-signed certs require disabling verification via JSON options
+      ROUNDCUBEMAIL_IMAP_CONN_OPTIONS: '{"ssl":{"verify_peer":false,"verify_peer_name":false,"allow_self_signed":true}}'
+      ROUNDCUBEMAIL_SMTP_CONN_OPTIONS: '{"ssl":{"verify_peer":false,"verify_peer_name":false,"allow_self_signed":true}}'
     ports:
       - "8080:80"
+    restart: always
+    volumes:
+      - ./config/roundcube/config.inc.php:/var/www/html/config/config.inc.php
+      - ./config/roundcube/plugins/pqc_encryption:/var/www/html/plugins/pqc_encryption
     depends_on:
       - mail
       - db
+    healthcheck:
+      test: ["CMD-SHELL", "wget --spider -q http://localhost || exit 1"]
+      interval: 20s
+      timeout: 10s
+      retries: 5
+
+  pqc-proxy:
+    image: openquantumsafe/nginx:latest
+    container_name: pqc_proxy
+    ports:
+      - "80:80"     # HTTP for HTTPS Redirects
+      - "443:443"   # PQC HTTPS (Standard port to hide from URL)
+      - "1025:1025"  # PQC SMTP Proxy
+      - "1143:1143"  # PQC IMAP Proxy
+    volumes:
+      - ./config/nginx/nginx.conf:/opt/nginx/conf/nginx.conf
+      - ./data/ssl:/etc/nginx/ssl
+    command: ["nginx", "-g", "daemon off;"]
+    depends_on:
+      - mail
+      - roundcube
+      - key-service
+
+  # Key Management Service for PQC E2E Encryption
+  key-service:
+    build: ./services/key-service
+    container_name: key_service
+    environment:
+      DATABASE_URL: postgresql+asyncpg://roundcube:roundcube_pass@db:5432/roundcube
+    ports:
+      - "8081:8081"
+    volumes:
+      - ./config/key-service:/app/config
+    depends_on:
+      db:
+        condition: service_healthy
     restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8081/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  mailstate:
+  maillogs:
+  db:

@@ -1,0 +1,745 @@
+/**
+ * QuMail PQC Encryption Plugin Styles
+ * Designed to harmonize with the Roundcube Elastic dark theme.
+ *
+ * Palette derived from the Elastic skin:
+ *   --bg-surface:    #282828   (sidebar / card background)
+ *   --bg-elevated:   #323232   (raised cards, inputs)
+ *   --bg-overlay:    rgba(0,0,0,0.65)
+ *   --border:        #444
+ *   --text-primary:  #e0e0e0
+ *   --text-secondary:#a0a0a0
+ *   --accent:        #37c0e8   (Roundcube's cyan-ish link color)
+ *   --accent-hover:  #2aadd2
+ *   --success:       #66bb6a
+ *   --warning:       #ffa726
+ *   --danger:        #ef5350
+ */
+
+/* ===== Overlay for dialogs ===== */
+.pqc-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.65);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    backdrop-filter: blur(6px);
+    animation: pqc-fadeIn 0.2s ease;
+}
+
+@keyframes pqc-fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+/* ===== Dialog container ===== */
+.pqc-dialog {
+    background: #282828;
+    border: 1px solid #444;
+    border-radius: 10px;
+    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.5);
+    max-width: 480px;
+    width: 92%;
+    max-height: 90vh;
+    overflow-y: auto;
+    color: #e0e0e0;
+    animation: pqc-slideUp 0.25s ease;
+}
+
+@keyframes pqc-slideUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.pqc-dialog-content {
+    padding: 28px 24px;
+}
+
+.pqc-dialog h2 {
+    margin: 0 0 20px;
+    font-size: 1.35em;
+    font-weight: 600;
+    color: #e0e0e0;
+}
+
+.pqc-dialog h3 {
+    margin: 0 0 10px;
+    font-size: 1em;
+    font-weight: 600;
+    color: #ef5350;
+}
+
+/* ===== Warning box ===== */
+.pqc-warning-box {
+    background: rgba(255, 167, 38, 0.08);
+    border: 1px solid rgba(255, 167, 38, 0.3);
+    border-left: 3px solid #ffa726;
+    border-radius: 6px;
+    padding: 16px;
+    margin-bottom: 20px;
+    color: #e0c78a;
+}
+
+.pqc-warning-box p {
+    color: #e0c78a;
+}
+
+.pqc-warning-box strong {
+    color: #ffd54f;
+}
+
+.pqc-warning-box ul {
+    margin: 10px 0;
+    padding-left: 20px;
+}
+
+.pqc-warning-box li {
+    margin: 5px 0;
+    color: #d4b87a;
+}
+
+/* Critical (red) warning variant */
+.pqc-warning-box.critical,
+.pqc-warning-box[style*="ffebee"] {
+    background: rgba(239, 83, 80, 0.08) !important;
+    border-color: rgba(239, 83, 80, 0.3) !important;
+    border-left-color: #ef5350 !important;
+    color: #ef9a9a !important;
+}
+
+.pqc-warning-box.critical p,
+.pqc-warning-box.critical li,
+.pqc-warning-box[style*="ffebee"] p,
+.pqc-warning-box[style*="ffebee"] li {
+    color: #ef9a9a !important;
+}
+
+.pqc-warning-box.critical strong,
+.pqc-warning-box[style*="ffebee"] strong {
+    color: #ffcdd2 !important;
+}
+
+/* ===== Form elements ===== */
+.pqc-form {
+    margin: 20px 0;
+}
+
+.pqc-form .form-group {
+    margin-bottom: 16px;
+}
+
+.pqc-form label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 500;
+    color: #b0b0b0;
+    font-size: 13px;
+}
+
+.pqc-form input[type="password"],
+.pqc-form input[type="text"] {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1px solid #555;
+    border-radius: 6px;
+    font-size: 14px;
+    box-sizing: border-box;
+    background: #323232;
+    color: #e0e0e0;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.pqc-form input::placeholder {
+    color: #777;
+}
+
+.pqc-form input:focus {
+    outline: none;
+    border-color: #37c0e8;
+    box-shadow: 0 0 0 3px rgba(55, 192, 232, 0.15);
+}
+
+.pqc-form .checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.pqc-form .checkbox input {
+    width: auto;
+    margin: 0;
+    accent-color: #37c0e8;
+}
+
+.pqc-form .checkbox label {
+    display: inline;
+    margin: 0;
+    font-weight: normal;
+    color: #b0b0b0;
+}
+
+/* ===== Error message ===== */
+.pqc-error {
+    background: rgba(239, 83, 80, 0.12);
+    color: #ef9a9a;
+    padding: 10px 14px;
+    border-radius: 6px;
+    margin: 12px 0;
+    font-size: 13px;
+    border: 1px solid rgba(239, 83, 80, 0.25);
+}
+
+/* ===== Info message ===== */
+.pqc-info {
+    background: rgba(55, 192, 232, 0.1);
+    color: #80deea;
+    padding: 10px 14px;
+    border-radius: 6px;
+    margin: 12px 0;
+    font-size: 13px;
+    border: 1px solid rgba(55, 192, 232, 0.2);
+}
+
+/* ===== Buttons ===== */
+.pqc-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 22px;
+}
+
+.pqc-dialog .btn {
+    padding: 9px 18px;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s, transform 0.1s;
+    letter-spacing: 0.01em;
+}
+
+.pqc-dialog .btn:hover {
+    transform: translateY(-1px);
+}
+
+.pqc-dialog .btn:active {
+    transform: translateY(0);
+}
+
+.pqc-dialog .btn-primary {
+    background: #37c0e8;
+    color: #111;
+    border-color: #37c0e8;
+    font-weight: 600;
+}
+
+.pqc-dialog .btn-primary:hover {
+    background: #2aadd2;
+    border-color: #2aadd2;
+}
+
+.pqc-dialog .btn-primary:disabled {
+    background: #444;
+    color: #777;
+    border-color: #444;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.pqc-dialog .btn:not(.btn-primary) {
+    background: #3a3a3a;
+    color: #c0c0c0;
+    border-color: #555;
+}
+
+.pqc-dialog .btn:not(.btn-primary):hover {
+    background: #444;
+    border-color: #666;
+}
+
+/* Danger button */
+.pqc-dialog .btn-danger,
+.pqc-dialog .btn[style*="d32f2f"],
+.pqc-dialog .btn[style*="ff9800"] {
+    background: #ef5350 !important;
+    color: #fff !important;
+    border-color: #ef5350 !important;
+}
+
+.pqc-dialog .btn-danger:hover {
+    background: #e53935 !important;
+}
+
+/* ===== Loading spinner ===== */
+.pqc-loading {
+    text-align: center;
+    padding: 40px;
+}
+
+.pqc-loading .spinner {
+    width: 36px;
+    height: 36px;
+    border: 3px solid #444;
+    border-top-color: #37c0e8;
+    border-radius: 50%;
+    animation: pqc-spin 0.8s linear infinite;
+    margin: 0 auto 16px;
+}
+
+.pqc-loading p {
+    color: #a0a0a0;
+    font-size: 14px;
+}
+
+@keyframes pqc-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ===== Status badge ===== */
+.status-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+
+.status-badge.unlocked {
+    background: rgba(102, 187, 106, 0.15);
+    color: #81c784;
+    border: 1px solid rgba(102, 187, 106, 0.3);
+}
+
+.status-badge.locked {
+    background: rgba(255, 167, 38, 0.12);
+    color: #ffb74d;
+    border: 1px solid rgba(255, 167, 38, 0.3);
+}
+
+/* ===== Status info in dialog ===== */
+.pqc-status-info {
+    margin-bottom: 18px;
+}
+
+.pqc-status-info p {
+    margin: 8px 0;
+    font-size: 13px;
+    color: #b0b0b0;
+}
+
+.pqc-status-info p strong {
+    color: #d0d0d0;
+    min-width: 80px;
+    display: inline-block;
+}
+
+/* ===== Toolbar / sidebar button ===== */
+#pqc-status-btn {
+    display: flex !important;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 2px 4px;
+    text-decoration: none !important;
+    margin: 0;
+    font-size: 11px;
+    font-weight: 500;
+    color: #37c0e8 !important;
+    transition: background 0.2s;
+    border: none;
+    background: transparent !important;
+    cursor: pointer;
+    width: 100%;
+    box-sizing: border-box;
+    overflow: visible !important;
+    height: auto !important;
+    min-height: 50px;
+}
+
+#pqc-status-btn:hover {
+    background: rgba(55, 192, 232, 0.1) !important;
+}
+
+#pqc-status-btn .pqc-btn-icon {
+    display: block;
+    font-size: 20px;
+    line-height: 1;
+    margin-bottom: 2px;
+}
+
+#pqc-status-btn .pqc-btn-label {
+    display: block !important;
+    visibility: visible !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+    text-align: center;
+    font-size: 11px;
+    line-height: 1.3;
+    color: inherit;
+}
+
+/* ===== Compose – encryption toggle ===== */
+.pqc-encrypt-container {
+    display: inline-flex !important;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 14px !important;
+    margin: 8px 0 !important;
+    background: #2a2a2a !important;
+    border: 1px solid #444 !important;
+    border-radius: 6px !important;
+}
+
+.pqc-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 7px 14px !important;
+    border: 1px solid #555 !important;
+    border-radius: 5px !important;
+    background: #323232 !important;
+    color: #c0c0c0 !important;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.pqc-toggle:hover:not(.disabled) {
+    border-color: #37c0e8 !important;
+    background: rgba(55, 192, 232, 0.1) !important;
+    color: #e0e0e0 !important;
+}
+
+.pqc-toggle.active {
+    background: #37c0e8 !important;
+    color: #111 !important;
+    border-color: #37c0e8 !important;
+    font-weight: 600;
+}
+
+.pqc-toggle.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: #2a2a2a !important;
+    border-color: #3a3a3a !important;
+    color: #777 !important;
+}
+
+.pqc-status-text {
+    font-size: 12px !important;
+    color: #888 !important;
+}
+
+/* ===== Read – encrypted message placeholder ===== */
+.pqc-encrypted-placeholder {
+    text-align: center;
+    padding: 50px 36px;
+    background: #282828 !important;
+    border: 1px solid #444;
+    border-radius: 10px;
+    margin: 16px;
+    color: #e0e0e0 !important;
+}
+
+.pqc-encrypted-placeholder.error {
+    background: #282828 !important;
+    border-color: #ef5350 !important;
+}
+
+.pqc-encrypted-icon {
+    font-size: 48px;
+    margin-bottom: 14px;
+    line-height: 1;
+}
+
+.pqc-encrypted-placeholder h3 {
+    margin: 0 0 8px;
+    color: #e0e0e0 !important;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.pqc-encrypted-placeholder p {
+    color: #a0a0a0 !important;
+    margin: 0 0 6px;
+    font-size: 13px;
+}
+
+.pqc-encrypted-placeholder .btn,
+.pqc-encrypted-placeholder button {
+    padding: 10px 22px;
+    background: #37c0e8 !important;
+    color: #111 !important;
+    border: none !important;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-top: 8px;
+}
+
+.pqc-encrypted-placeholder .btn:hover,
+.pqc-encrypted-placeholder button:hover {
+    background: #2aadd2 !important;
+}
+
+/* ===== Read – unlock prompt (inline in message body) ===== */
+.pqc-unlock-card {
+    background: #323232;
+    border: 1px solid #444;
+    padding: 24px;
+    border-radius: 8px;
+    max-width: 360px;
+    margin: 20px auto 0;
+    text-align: left;
+}
+
+.pqc-unlock-card .pqc-unlock-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #37c0e8;
+    margin: 0 0 14px;
+}
+
+.pqc-unlock-card input[type="password"] {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1px solid #555;
+    border-radius: 6px;
+    font-size: 14px;
+    box-sizing: border-box;
+    background: #282828;
+    color: #e0e0e0;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.pqc-unlock-card input::placeholder {
+    color: #777;
+}
+
+.pqc-unlock-card input:focus {
+    outline: none;
+    border-color: #37c0e8;
+    box-shadow: 0 0 0 3px rgba(55, 192, 232, 0.15);
+}
+
+.pqc-unlock-card .pqc-unlock-error {
+    color: #ef9a9a;
+    font-size: 12px;
+    margin-top: 8px;
+}
+
+.pqc-unlock-card button {
+    width: 100%;
+    padding: 11px;
+    margin-top: 14px;
+    background: #37c0e8;
+    color: #111;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: background 0.2s;
+}
+
+.pqc-unlock-card button:hover {
+    background: #2aadd2;
+}
+
+.pqc-unlock-card button:disabled {
+    background: #444;
+    color: #777;
+    cursor: wait;
+}
+
+/* ===== Read – decrypted message header ===== */
+.pqc-decrypted-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    background: rgba(102, 187, 106, 0.08);
+    border: 1px solid rgba(102, 187, 106, 0.2);
+    border-radius: 6px;
+    margin-bottom: 14px;
+}
+
+.pqc-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    background: rgba(102, 187, 106, 0.15);
+    color: #81c784;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    border: 1px solid rgba(102, 187, 106, 0.3);
+}
+
+.pqc-algorithm {
+    color: #888;
+    font-size: 11px;
+}
+
+.pqc-decrypted-content {
+    padding: 14px;
+    line-height: 1.6;
+    color: #e0e0e0;
+}
+
+/* ===== Sent folder – encrypted message card ===== */
+.pqc-sent-encrypted {
+    text-align: center;
+    padding: 30px;
+    background: #282828 !important;
+    border: 1px solid #444 !important;
+    border-radius: 10px;
+    color: #e0e0e0 !important;
+}
+
+.pqc-sent-encrypted h3 {
+    color: #e0e0e0 !important;
+}
+
+.pqc-sent-encrypted p {
+    color: #a0a0a0 !important;
+}
+
+.pqc-sent-encrypted strong {
+    color: #d0d0d0;
+}
+
+.pqc-sent-info-box {
+    background: rgba(55, 192, 232, 0.08);
+    border: 1px solid rgba(55, 192, 232, 0.2);
+    padding: 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    text-align: left;
+    margin-top: 16px;
+}
+
+.pqc-sent-info-box p {
+    margin: 6px 0;
+    color: #b0b0b0 !important;
+}
+
+/* ===== Divider ===== */
+.pqc-divider {
+    text-align: center;
+    margin: 20px 0;
+    position: relative;
+}
+
+.pqc-divider::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    border-top: 1px solid #444;
+}
+
+.pqc-divider span {
+    position: relative;
+    background: #282828;
+    padding: 0 12px;
+    color: #777;
+    font-size: 12px;
+}
+
+/* ===== Regenerate link area ===== */
+.pqc-regen-area {
+    text-align: center;
+    margin-top: 4px;
+}
+
+.pqc-regen-area p {
+    color: #888;
+    font-size: 12px;
+    margin-bottom: 10px;
+}
+
+.pqc-regen-area button {
+    background: rgba(239, 83, 80, 0.12);
+    color: #ef9a9a;
+    border: 1px solid rgba(239, 83, 80, 0.3);
+    padding: 8px 18px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    transition: background 0.2s;
+}
+
+.pqc-regen-area button:hover {
+    background: rgba(239, 83, 80, 0.2);
+}
+
+/* ===== Decryption error causes box ===== */
+.pqc-causes-box {
+    background: rgba(255, 167, 38, 0.08);
+    border: 1px solid rgba(255, 167, 38, 0.25);
+    border-radius: 6px;
+    padding: 14px;
+    margin: 16px 0;
+    text-align: left;
+}
+
+.pqc-causes-box .pqc-causes-title {
+    font-weight: 600;
+    color: #ffb74d;
+    font-size: 13px;
+    margin: 0 0 8px;
+}
+
+.pqc-causes-box ul {
+    margin: 0;
+    padding-left: 18px;
+    color: #d4b87a;
+    font-size: 12px;
+}
+
+.pqc-causes-box li {
+    margin: 4px 0;
+}
+
+.pqc-causes-box .pqc-causes-note {
+    margin: 10px 0 0;
+    font-size: 11px;
+    color: #a08850;
+}
+
+/* ===== Settings section ===== */
+#pqc-settings-container {
+    min-height: 100px;
+}
+
+/* ===== Scrollbar styling for dialogs ===== */
+.pqc-dialog::-webkit-scrollbar {
+    width: 6px;
+}
+
+.pqc-dialog::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.pqc-dialog::-webkit-scrollbar-thumb {
+    background: #555;
+    border-radius: 3px;
+}
