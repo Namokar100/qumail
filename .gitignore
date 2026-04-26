@@ -48,3 +48,6 @@ yarn-error.log*
 *.tmp
 *.temp
 *~
+
+explaination_docs/
+.agent/
